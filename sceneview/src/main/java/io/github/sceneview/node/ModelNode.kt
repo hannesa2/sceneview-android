@@ -204,7 +204,7 @@ open class ModelNode(
             }
         }
         if (autoAnimate && animator.animationCount > 0) {
-            playAnimation(0)
+            for (i in 0 until animator.animationCount) { playAnimation(i) }
         }
         scaleToUnits?.let { scaleToUnitCube(it) }
         centerOrigin?.let { centerOrigin(it) }
@@ -418,8 +418,10 @@ open class ModelNode(
     }
 
     private fun applyAnimations(frameTimeNanos: Long) {
-        playingAnimations.forEach { (index, animation) ->
-            if (animation.speed == 0f) return@forEach
+        val iterator = playingAnimations.iterator()
+        while (iterator.hasNext()) {
+            val (index, animation) = iterator.next()
+            if (animation.speed == 0f) continue
 
             animator.let { animator ->
                 val elapsedTimeSeconds = frameTimeNanos.intervalSeconds(animation.startTime)
@@ -434,7 +436,7 @@ open class ModelNode(
                 animator.applyAnimation(index, animationTime)
 
                 if (!animation.loop && adjustedTimeSeconds >= animationDuration) {
-                    playingAnimations.remove(index)
+                    iterator.remove()
                 }
             }
         }
